@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Munch — Healthy Snacks for Real Life</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #F5F0E8;
+    --green: #3D6B4F;
+    --green-light: #6A9E7F;
+    --green-pale: #D4E8DC;
+    --ochre: #C8854A;
+    --ochre-light: #F2C99A;
+    --brown: #5C3D2E;
+    --text: #2C2416;
+    --text-muted: #7A6B58;
+    --white: #FDFAF4;
+    --border: #DDD5C5;
+    --shadow: rgba(44, 36, 22, 0.08);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+    background-image: 
+      radial-gradient(ellipse at 10% 20%, rgba(106, 158, 127, 0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 80%, rgba(200, 133, 74, 0.1) 0%, transparent 50%);
+  }
+
+  /* Noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px 60px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Header */
+  header {
+    padding: 48px 0 32px;
+    text-align: center;
+    animation: fadeDown 0.7s ease both;
+  }
+
+  .logo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--green);
+    color: var(--cream);
+    padding: 6px 16px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .logo-dot {
+    width: 6px; height: 6px;
+    background: var(--ochre-light);
+    border-radius: 50%;
+    animation: pulse 2s ease infinite;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 6vw, 3.8rem);
+    line-height: 1.1;
+    color: var(--brown);
+    margin-bottom: 12px;
+  }
+
+  h1 em {
+    color: var(--green);
+    font-style: italic;
+  }
+
+  .tagline {
+    color: var(--text-muted);
+    font-size: 1rem;
+    font-weight: 300;
+    max-width: 380px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  /* Search bar */
+  .search-wrap {
+    position: relative;
+    margin: 32px 0 0;
+    animation: fadeUp 0.7s 0.1s ease both;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 18px;
+    pointer-events: none;
+  }
+
+  #search-input {
+    width: 100%;
+    padding: 16px 18px 16px 50px;
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    background: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-shadow: 0 2px 12px var(--shadow);
+  }
+
+  #search-input:focus {
+    border-color: var(--green-light);
+    box-shadow: 0 4px 20px rgba(61, 107, 79, 0.12);
+  }
+
+  #search-input::placeholder { color: var(--text-muted); }
+
+  /* Location card */
+  .location-card {
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    padding: 40px 32px;
+    text-align: center;
+    margin: 24px 0;
+    box-shadow: 0 4px 24px var(--shadow);
+    animation: fadeUp 0.7s 0.2s ease both;
+  }
+
+  .location-card .icon {
+    width: 56px; height: 56px;
+    background: var(--green-pale);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    margin: 0 auto 20px;
+  }
+
+  .location-card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    color: var(--brown);
+    margin-bottom: 8px;
+  }
+
+  .location-card p {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+    font-weight: 300;
+  }
+
+  .zip-row {
+    display: flex;
+    gap: 12px;
+    max-width: 380px;
+    margin: 0 auto;
+  }
+
+  #zip-input {
+    flex: 1;
+    padding: 14px 18px;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    background: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+
+  #zip-input:focus { border-color: var(--green-light); }
+
+  .btn-primary {
+    padding: 14px 24px;
+    background: var(--green);
+    color: var(--cream);
+    border: none;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    white-space: nowrap;
+  }
+
+  .btn-primary:hover { background: var(--brown); transform: translateY(-1px); }
+  .btn-primary:active { transform: translateY(0); }
+
+  /* Filter chips */
+  .filter-row {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+    animation: fadeUp 0.7s 0.3s ease both;
+  }
+
+  .chip {
+    padding: 7px 16px;
+    border: 2px solid var(--border);
+    border-radius: 100px;
+    font-size: 0.82rem;
+    font-weight: 500;
+    cursor: pointer;
+    background: var(--white);
+    color: var(--text-muted);
+    transition: all 0.18s;
+    user-select: none;
+  }
+
+  .chip:hover { border-color: var(--green-light); color: var(--green); }
+  .chip.active { background: var(--green); border-color: var(--green); color: var(--cream); }
+
+  /* Results table */
+  .results-section {
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .results-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    color: var(--brown);
+  }
+
+  .results-count {
+    font-size: 0.82rem;
+    color: var(--text-muted);
+    background: var(--green-pale);
+    padding: 4px 12px;
+    border-radius: 100px;
+    font-weight: 500;
+  }
+
+  .table-wrap {
+    background: var(--white);
+    border: 2px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px var(--shadow);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  thead {
+    background: var(--green);
+    color: var(--cream);
+  }
+
+  thead th {
+    padding: 14px 18px;
+    text-align: left;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.15s;
+    cursor: pointer;
+  }
+
+  tbody tr:last-child { border-bottom: none; }
+  tbody tr:hover { background: var(--cream); }
+
+  tbody td {
+    padding: 16px 18px;
+    font-size: 0.9rem;
+    vertical-align: middle;
+  }
+
+  .store-badge {
+    display: inline-block;
+    background: var(--green-pale);
+    color: var(--green);
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 500;
+    margin-bottom: 4px;
+  }
+
+  .item-name {
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+
+  .item-desc {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+    font-weight: 300;
+  }
+
+  .cost-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 500;
+    color: var(--ochre);
+    font-size: 0.95rem;
+  }
+
+  .time-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--green);
+    font-weight: 500;
+    font-size: 0.88rem;
+  }
+
+  .tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+  }
+
+  .tag {
+    font-size: 0.7rem;
+    background: var(--ochre-light);
+    color: var(--brown);
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-weight: 500;
+  }
+
+  /* Detail panel (modal-ish slide in) */
+  .detail-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(44, 36, 22, 0.45);
+    z-index: 100;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    backdrop-filter: blur(3px);
+  }
+
+  .detail-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+
+  .detail-panel {
+    background: var(--white);
+    border-radius: 24px 24px 0 0;
+    padding: 32px;
+    width: 100%;
+    max-width: 900px;
+    max-height: 85vh;
+    overflow-y: auto;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .detail-overlay.open .detail-panel {
+    transform: translateY(0);
+  }
+
+  .detail-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+
+  .detail-panel h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    color: var(--brown);
+    margin-bottom: 6px;
+  }
+
+  .close-btn {
+    background: var(--cream);
+    border: none;
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+
+  .close-btn:hover { background: var(--border); }
+
+  .detail-meta {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 24px;
+  }
+
+  .meta-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 14px;
+    font-size: 0.85rem;
+  }
+
+  .meta-chip .label { color: var(--text-muted); font-size: 0.72rem; display: block; }
+  .meta-chip .value { font-weight: 500; color: var(--text); }
+
+  .recipe-steps h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    color: var(--green);
+    margin-bottom: 12px;
+  }
+
+  .steps-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .steps-list li {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+
+  .step-num {
+    width: 26px; height: 26px;
+    background: var(--green);
+    color: var(--cream);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 500;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+
+  .step-text { font-size: 0.9rem; line-height: 1.6; color: var(--text); }
+
+  .ingredients-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 12px 0 20px;
+  }
+
+  .ingredient {
+    background: var(--green-pale);
+    color: var(--green);
+    padding: 5px 12px;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
+
+  /* Loading state */
+  .loading {
+    text-align: center;
+    padding: 48px;
+    color: var(--text-muted);
+  }
+
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--border);
+    border-top-color: var(--green);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  /* Empty / prompt state */
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--text-muted);
+  }
+
+  .empty-state .big-emoji { font-size: 3rem; margin-bottom: 12px; }
+  .empty-state p { font-size: 0.9rem; font-weight: 300; }
+
+  /* Animations */
+  @keyframes fadeDown { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  /* Row entrance */
+  tbody tr { animation: fadeUp 0.3s ease both; }
+  tbody tr:nth-child(1) { animation-delay: 0.05s; }
+  tbody tr:nth-child(2) { animation-delay: 0.1s; }
+  tbody tr:nth-child(3) { animation-delay: 0.15s; }
+  tbody tr:nth-child(4) { animation-delay: 0.2s; }
+  tbody tr:nth-child(5) { animation-delay: 0.25s; }
+  tbody tr:nth-child(6) { animation-delay: 0.3s; }
+  tbody tr:nth-child(7) { animation-delay: 0.35s; }
+  tbody tr:nth-child(8) { animation-delay: 0.4s; }
+
+  @media (max-width: 600px) {
+    header { padding: 32px 0 20px; }
+    thead th:nth-child(3), tbody td:nth-child(3) { display: none; }
+    .detail-meta { gap: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- Header -->
+  <header>
+    <div class="logo-badge"><div class="logo-dot"></div> Healthy Eating Made Easy</div>
+    <h1>Eat <em>well.</em><br>Spend less.</h1>
+    <p class="tagline">Quick, affordable snacks and meals for busy students — near you.</p>
+
+    <!-- Search bar -->
+    <div class="search-wrap">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="search-input" placeholder="Search snacks, recipes, ingredients...">
+    </div>
+  </header>
+
+  <!-- Location card -->
+  <div class="location-card" id="location-card">
+    <div class="icon">📍</div>
+    <h2>Where Are You Located?</h2>
+    <p>We'll find healthy options at stores near you and suggest<br>meals that actually fit a student budget.</p>
+    <div class="zip-row">
+      <input type="text" id="zip-input" placeholder="ZIP Code" maxlength="5">
+      <button class="btn-primary" onclick="handleZipSubmit()">Find Stores →</button>
+    </div>
+  </div>
+
+  <!-- Filter chips (hidden until results shown) -->
+  <div class="filter-row" id="filter-row" style="display:none;">
+    <div class="chip active" data-filter="all" onclick="setFilter(this, 'all')">All</div>
+    <div class="chip" data-filter="snack" onclick="setFilter(this, 'snack')">🍎 Snacks</div>
+    <div class="chip" data-filter="meal" onclick="setFilter(this, 'meal')">🍳 Meals</div>
+    <div class="chip" data-filter="under5" onclick="setFilter(this, 'under5')">Under $5</div>
+    <div class="chip" data-filter="quick" onclick="setFilter(this, 'quick')">⚡ Under 10 min</div>
+    <div class="chip" data-filter="vegan" onclick="setFilter(this, 'vegan')">🌱 Vegan</div>
+  </div>
+
+  <!-- Results -->
+  <div id="results-area"></div>
+
+</div>
+
+<!-- Detail Panel -->
+<div class="detail-overlay" id="detail-overlay" onclick="closeDetail(event)">
+  <div class="detail-panel" id="detail-panel">
+    <div class="detail-top">
+      <div>
+        <h3 id="d-name"></h3>
+        <div id="d-store-badge" class="store-badge"></div>
+      </div>
+      <button class="close-btn" onclick="closeDetailDirect()">✕</button>
+    </div>
+    <div class="detail-meta">
+      <div class="meta-chip">
+        <div><span class="label">Est. Cost</span><span class="value" id="d-cost"></span></div>
+      </div>
+      <div class="meta-chip">
+        <div><span class="label">Prep Time</span><span class="value" id="d-time"></span></div>
+      </div>
+      <div class="meta-chip">
+        <div><span class="label">Category</span><span class="value" id="d-cat"></span></div>
+      </div>
+      <div class="meta-chip">
+        <div><span class="label">Calories</span><span class="value" id="d-cal"></span></div>
+      </div>
+    </div>
+    <div class="recipe-steps">
+      <h4>🥗 Ingredients</h4>
+      <div class="ingredients-grid" id="d-ingredients"></div>
+      <h4>📋 How to Make It</h4>
+      <ul class="steps-list" id="d-steps"></ul>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+const DATA = [
+  {
+    id: 1, store: "Trader Joe's", category: "snack",
+    name: "Apple + Almond Butter",
+    desc: "Classic high-protein snack, no cooking required",
+    cost: 2.50, time: 2, vegan: true,
+    calories: "~220 cal",
+    tags: ["No-cook", "High Protein", "Vegan"],
+    ingredients: ["1 apple", "2 tbsp almond butter", "Optional: cinnamon"],
+    steps: [
+      "Wash and slice your apple into wedges.",
+      "Portion 2 tbsp of almond butter into a small bowl.",
+      "Dip and enjoy. Sprinkle cinnamon if you like extra flavor."
+    ]
+  },
+  {
+    id: 2, store: "Trader Joe's", category: "meal",
+    name: "Greek Yogurt Parfait",
+    desc: "Protein-packed breakfast or snack in minutes",
+    cost: 3.00, time: 5, vegan: false,
+    calories: "~310 cal",
+    tags: ["High Protein", "No-cook", "Gut Health"],
+    ingredients: ["1 cup Greek yogurt", "½ cup granola", "½ cup mixed berries", "1 tbsp honey"],
+    steps: [
+      "Scoop Greek yogurt into a bowl or cup.",
+      "Layer granola on top for crunch.",
+      "Add fresh or frozen (thawed) berries.",
+      "Drizzle with honey. Done."
+    ]
+  },
+  {
+    id: 3, store: "Aldi", category: "meal",
+    name: "Black Bean Quesadilla",
+    desc: "Crispy, filling, and packed with plant-based protein",
+    cost: 2.75, time: 10, vegan: true,
+    calories: "~420 cal",
+    tags: ["High Protein", "Vegan", "Budget King"],
+    ingredients: ["2 flour tortillas", "½ can black beans (drained)", "¼ cup salsa", "Shredded cheese (optional)", "Cumin & garlic powder"],
+    steps: [
+      "Heat a pan on medium. Sprinkle one tortilla with beans, a pinch of cumin and garlic powder, and cheese if using.",
+      "Top with second tortilla and press flat.",
+      "Cook 2–3 min per side until golden and crispy.",
+      "Slice into triangles. Serve with salsa."
+    ]
+  },
+  {
+    id: 4, store: "Walmart", category: "snack",
+    name: "Hummus + Veggie Dippers",
+    desc: "Fiber-rich, anti-inflammatory, no prep needed",
+    cost: 3.50, time: 3, vegan: true,
+    calories: "~190 cal",
+    tags: ["High Fiber", "Vegan", "Anti-inflammatory"],
+    ingredients: ["¼ cup hummus", "Carrots", "Celery sticks", "Bell pepper strips"],
+    steps: [
+      "Wash and cut vegetables into sticks.",
+      "Spoon hummus into a bowl.",
+      "Dip and snack. Refrigerate leftovers."
+    ]
+  },
+  {
+    id: 5, store: "Aldi", category: "meal",
+    name: "Overnight Oats",
+    desc: "Prep the night before, grab and go in the morning",
+    cost: 1.80, time: 5, vegan: true,
+    calories: "~380 cal",
+    tags: ["Meal Prep", "High Fiber", "Vegan"],
+    ingredients: ["½ cup rolled oats", "¾ cup oat milk", "1 tbsp chia seeds", "1 tbsp peanut butter", "Banana slices", "Pinch of cinnamon"],
+    steps: [
+      "Add oats, oat milk, and chia seeds to a mason jar or bowl.",
+      "Stir in peanut butter and cinnamon.",
+      "Seal and refrigerate overnight (or at least 4 hours).",
+      "In the morning, top with banana slices. Eat cold or microwave 60 seconds."
+    ]
+  },
+  {
+    id: 6, store: "Trader Joe's", category: "meal",
+    name: "Avocado Toast + Egg",
+    desc: "Healthy fats, protein, and slow-burn energy",
+    cost: 3.20, time: 8, vegan: false,
+    calories: "~390 cal",
+    tags: ["High Protein", "Healthy Fats", "Quick"],
+    ingredients: ["2 slices whole grain bread", "1 avocado", "2 eggs", "Salt, pepper, red pepper flakes", "Optional: lemon juice"],
+    steps: [
+      "Toast bread to your preference.",
+      "Mash avocado in a bowl with salt, pepper, and a squeeze of lemon.",
+      "Fry or poach eggs to your liking (sunny side up = 3 min on medium heat).",
+      "Spread avocado on toast, top with egg, sprinkle red pepper flakes."
+    ]
+  },
+  {
+    id: 7, store: "Walmart", category: "snack",
+    name: "Trail Mix (DIY)",
+    desc: "Make your own — cheaper and healthier than store-bought",
+    cost: 1.50, time: 2, vegan: true,
+    calories: "~260 cal",
+    tags: ["No-cook", "Vegan", "Energy Boost"],
+    ingredients: ["¼ cup almonds", "¼ cup cashews", "2 tbsp dark chocolate chips", "2 tbsp dried cranberries", "1 tbsp pumpkin seeds"],
+    steps: [
+      "Combine all ingredients in a zip-lock bag or small container.",
+      "Shake to mix.",
+      "Portion into servings for the week. Done."
+    ]
+  },
+  {
+    id: 8, store: "Aldi", category: "meal",
+    name: "Egg Fried Rice",
+    desc: "High-protein, filling, uses leftover rice",
+    cost: 2.20, time: 10, vegan: false,
+    calories: "~450 cal",
+    tags: ["High Protein", "Budget King", "Leftovers OK"],
+    ingredients: ["1 cup cooked rice", "2 eggs", "½ cup frozen peas & carrots", "2 tbsp soy sauce", "1 tsp sesame oil", "Green onion (optional)"],
+    steps: [
+      "Heat a pan or wok on high heat with a splash of oil.",
+      "Add frozen veggies and stir-fry 2 minutes.",
+      "Push veggies to the side, crack eggs in the center and scramble.",
+      "Add rice, pour soy sauce and sesame oil, stir everything together.",
+      "Cook 2–3 min until everything is combined and slightly crispy. Top with green onion."
+    ]
+  }
+];
+
+// ─── STATE ──────────────────────────────────────────────────────────────────
+let currentFilter = 'all';
+let currentZip = '';
+let searchQuery = '';
+let allData = [...DATA];
+
+// ─── ZIP SUBMIT ─────────────────────────────────────────────────────────────
+function handleZipSubmit() {
+  const zip = document.getElementById('zip-input').value.trim();
+  if (!/^\d{5}$/.test(zip)) {
+    document.getElementById('zip-input').style.borderColor = '#C8854A';
+    document.getElementById('zip-input').placeholder = 'Enter a valid 5-digit ZIP';
+    setTimeout(() => {
+      document.getElementById('zip-input').style.borderColor = '';
+      document.getElementById('zip-input').placeholder = 'ZIP Code';
+    }, 2000);
+    return;
+  }
+  currentZip = zip;
+  showLoading();
+  setTimeout(() => {
+    document.getElementById('location-card').style.display = 'none';
+    document.getElementById('filter-row').style.display = 'flex';
+    renderResults();
+  }, 1200);
+}
+
+function showLoading() {
+  document.getElementById('results-area').innerHTML = `
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Finding healthy options near <strong>${document.getElementById('zip-input').value}</strong>...</p>
+    </div>`;
+}
+
+// ─── FILTER ─────────────────────────────────────────────────────────────────
+function setFilter(el, filter) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  currentFilter = filter;
+  renderResults();
+}
+
+function getFiltered() {
+  let data = [...allData];
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    data = data.filter(d =>
+      d.name.toLowerCase().includes(q) ||
+      d.desc.toLowerCase().includes(q) ||
+      d.store.toLowerCase().includes(q) ||
+      d.tags.some(t => t.toLowerCase().includes(q)) ||
+      d.ingredients.some(i => i.toLowerCase().includes(q))
+    );
+  }
+  if (currentFilter === 'snack') return data.filter(d => d.category === 'snack');
+  if (currentFilter === 'meal') return data.filter(d => d.category === 'meal');
+  if (currentFilter === 'under5') return data.filter(d => d.cost < 5);
+  if (currentFilter === 'quick') return data.filter(d => d.time <= 10);
+  if (currentFilter === 'vegan') return data.filter(d => d.vegan);
+  return data;
+}
+
+// ─── RENDER ─────────────────────────────────────────────────────────────────
+function renderResults() {
+  const filtered = getFiltered();
+  const area = document.getElementById('results-area');
+
+  if (filtered.length === 0) {
+    area.innerHTML = `<div class="empty-state"><div class="big-emoji">🥬</div><p>No results found. Try a different search or filter.</p></div>`;
+    return;
+  }
+
+  // Nearby stores summary
+  const stores = [...new Set(filtered.map(d => d.store))];
+  const storeText = stores.join(', ');
+
+  area.innerHTML = `
+    <div class="results-section">
+      <div class="results-header">
+        <h2 class="results-title">Near ZIP <strong>${currentZip}</strong> — ${storeText}</h2>
+        <span class="results-count">${filtered.length} options</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Store</th>
+              <th>Snack / Recipe</th>
+              <th>Est. Time</th>
+              <th>Est. Cost</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            ${filtered.map(item => `
+              <tr onclick="openDetail(${item.id})">
+                <td>
+                  <div class="store-badge">${item.store}</div>
+                  <div class="item-desc">${item.category === 'meal' ? '🍳 Meal' : '🍎 Snack'}</div>
+                </td>
+                <td>
+                  <div class="item-name">${item.name}</div>
+                  <div class="item-desc">${item.desc}</div>
+                  <div class="tag-list">${item.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+                </td>
+                <td>
+                  <span class="time-pill">⏱ ${item.time < 5 ? item.time + ' min' : item.time + ' min'}</span>
+                </td>
+                <td>
+                  <span class="cost-pill">$${item.cost.toFixed(2)}</span>
+                </td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+      <p style="text-align:center; color:var(--text-muted); font-size:0.78rem; margin-top:14px; font-weight:300;">Tap any row for the full recipe →</p>
+    </div>`;
+}
+
+// ─── DETAIL PANEL ────────────────────────────────────────────────────────────
+function openDetail(id) {
+  const item = allData.find(d => d.id === id);
+  if (!item) return;
+
+  document.getElementById('d-name').textContent = item.name;
+  document.getElementById('d-store-badge').textContent = item.store;
+  document.getElementById('d-cost').textContent = '$' + item.cost.toFixed(2);
+  document.getElementById('d-time').textContent = item.time + ' min';
+  document.getElementById('d-cat').textContent = item.category === 'meal' ? '🍳 Meal' : '🍎 Snack';
+  document.getElementById('d-cal').textContent = item.calories;
+
+  document.getElementById('d-ingredients').innerHTML =
+    item.ingredients.map(i => `<span class="ingredient">${i}</span>`).join('');
+
+  document.getElementById('d-steps').innerHTML =
+    item.steps.map((s, i) => `
+      <li>
+        <div class="step-num">${i + 1}</div>
+        <div class="step-text">${s}</div>
+      </li>`).join('');
+
+  document.getElementById('detail-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDetail(e) {
+  if (e.target === document.getElementById('detail-overlay')) closeDetailDirect();
+}
+
+function closeDetailDirect() {
+  document.getElementById('detail-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ─── SEARCH ─────────────────────────────────────────────────────────────────
+document.getElementById('search-input').addEventListener('input', function() {
+  searchQuery = this.value.trim();
+  if (currentZip) renderResults();
+});
+
+document.getElementById('zip-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') handleZipSubmit();
+});
+
+// Escape key closes panel
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeDetailDirect();
+});
+</script>
+</body>
+</html>
